@@ -1,4 +1,4 @@
-package com.vonnue.grab_resale.common;
+package com.vonnue.grab_resale.common.constants;
 
 public final class AppConstants {
 

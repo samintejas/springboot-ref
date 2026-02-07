@@ -2,8 +2,10 @@ package com.vonnue.grab_resale.exception;
 
 import java.net.URI;
 
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -18,6 +20,7 @@ public class GlobalExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         problem.setTitle("Resource Not Found");
         problem.setType(URI.create("about:blank"));
+        addTraceId(problem);
         return problem;
     }
 
@@ -27,6 +30,7 @@ public class GlobalExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         problem.setTitle("Bad Request");
         problem.setType(URI.create("about:blank"));
+        addTraceId(problem);
         return problem;
     }
 
@@ -41,7 +45,26 @@ public class GlobalExceptionHandler {
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .toList();
         problem.setProperty("errors", fieldErrors);
+        addTraceId(problem);
 
         return problem;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN,
+                "You do not have permission to access this resource");
+        problem.setTitle("Forbidden");
+        problem.setType(URI.create("about:blank"));
+        addTraceId(problem);
+        return problem;
+    }
+
+    private void addTraceId(ProblemDetail problem) {
+        String traceId = MDC.get("traceId");
+        if (traceId != null) {
+            problem.setProperty("traceId", traceId);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.vonnue.grab_resale.common;
+package com.vonnue.grab_resale.common.utils;
 
 import java.text.Normalizer;
 import java.util.Locale;

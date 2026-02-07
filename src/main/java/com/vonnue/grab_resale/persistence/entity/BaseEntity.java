@@ -1,4 +1,4 @@
-package com.vonnue.grab_resale.domain;
+package com.vonnue.grab_resale.persistence.entity;
 
 import java.time.Instant;
 
