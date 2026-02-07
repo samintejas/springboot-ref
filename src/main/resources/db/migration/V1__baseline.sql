@@ -1,0 +1,2 @@
+-- Baseline migration: empty starting point for Flyway
+-- Future migrations should be added as V2__description.sql, V3__description.sql, etc.

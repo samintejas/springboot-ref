@@ -1,0 +1,77 @@
+{
+  "carDetails": {
+    "carCondition": "newCar | preOwnedCar",
+    "make": "", // this should be dropdown in the ui -- stored in backend and retrienved with caching
+    "model": "", // this should be dropdown in the ui -- stored in backend and retrienved with caching
+    "yearOfManufacturing": "date",
+    "plateNumber": "string",
+    "mileage": "number",
+    "carType": "enum", // this should be dropdown in the ui -- stored in backend and retrienved with caching
+    "color": "string",
+    "technicalSpecification": {
+      "engineNumber": "string",
+      "chassisNumber": "string",
+      "fuelType": "enum", // this should be dropdown in the ui -- stored in backend and retrienved with caching
+      "transmission": "enum", // this should be dropdown in the ui -- stored in backend and retrienved with caching
+      "engineCapacity": "number",
+      "horsePower": "number"
+    },
+    "RegistrationAndOwnership": {
+      "ownerName": "string",
+      "registrationDate": "date",
+      "numberOfTransfers": "number",
+      "contactNumber": "number",
+      "emailAddress": "string",
+      "address": "string",
+      "logCard": {
+        "fileUrl": "string",
+        "fileName": "string",
+        "mimeType": "string",
+        "size": "number"
+      }
+    },
+    "PriceAndCoeDetails": {
+      "askingPrice": "number",
+      "coeRenewal": "date",
+      "coeAmount": "string",
+      "downPayment": "number",
+      "minimumPARF": "number",
+      "depreciation": "number",
+      "roadTax": "number",
+      "omv": "number"
+    },
+    "images": {
+      "imageWithNumberPlate": "string",
+      "carImages": []
+    }
+  },
+  "sellerDetails": {
+    "sellerType": "individual | company",
+    "ownershipDetails": {
+      "registeredOwner": "string",
+      "contactNumber": "string",
+      "email": "string",
+      "address": "string",
+      "isSeller": "boolean"
+    },
+    "sellerDetails": {
+      "name": "string",
+      "contactNumber": "string",
+      "whatsAppNumber": "string",
+      "companyAddress": "string",
+      "email": "string",
+      "letterOfAuthorization": {
+        "fileUrl": "string",
+        "fileName": "string",
+        "mimeType": "string",
+        "size": "number"
+      }
+    }
+  },
+  "otherDetails":{
+    // this should be a key value pair , so that i can extend in future
+    "description":"string",
+    "carFeatures":"string",
+    "accessories":"string"
+  }
+}

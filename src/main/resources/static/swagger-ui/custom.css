@@ -1,0 +1,20 @@
+.topbar-wrapper img[alt="Vonnue APIs"],
+.topbar-wrapper svg {
+    display: none;
+}
+
+.topbar-wrapper .link::before {
+    content: '';
+    display: inline-block;
+    width: 140px;
+    height: 40px;
+    background: url('/vonnue.svg') no-repeat center / contain;
+}
+
+.topbar-wrapper .link::after {
+    content: 'Grab Resale API';
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    margin-left: 12px;
+}
