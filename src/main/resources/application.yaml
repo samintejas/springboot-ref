@@ -69,4 +69,8 @@ app:
     refresh-token-expiration: 7d
     cookie-secure: false
 
+  security:
+    user:
+      name: admin
+      password: admin123
 

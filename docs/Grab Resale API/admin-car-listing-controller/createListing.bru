@@ -1,0 +1,77 @@
+meta {
+  name: createListing
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/admin/listings
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "carDetails": {
+      "carCondition": "",
+      "makeId": 0,
+      "modelId": 0,
+      "yearOfManufacturing": "",
+      "plateNumber": "",
+      "mileage": 0,
+      "carType": "",
+      "color": "",
+      "technicalSpecification": {
+        "engineNumber": "",
+        "chassisNumber": "",
+        "fuelType": "",
+        "transmission": "",
+        "engineCapacity": 0,
+        "horsePower": 0
+      },
+      "registrationOwnership": {
+        "ownerName": "",
+        "registrationDate": "",
+        "numberOfTransfers": 0,
+        "contactNumber": "",
+        "emailAddress": "",
+        "address": "",
+        "logCard": {
+          "fileUrl": "",
+          "fileName": "",
+          "mimeType": "",
+          "size": 0
+        }
+      },
+      "priceCoeDetails": {
+        "askingPrice": "",
+        "coeRenewal": "",
+        "coeAmount": "",
+        "downPayment": "",
+        "minimumParf": "",
+        "depreciation": "",
+        "roadTax": "",
+        "omv": ""
+      }
+    },
+    "sellerDetails": {
+      "sellerType": "",
+      "ownershipInfo": {
+        "registeredOwner": "",
+        "contactNumber": "",
+        "email": "",
+        "address": "",
+        "isSeller": false
+      },
+      "sellerInfo": {
+        "name": "",
+        "contactNumber": "",
+        "whatsAppNumber": "",
+        "companyAddress": "",
+        "email": "",
+        "letterOfAuthorization": {}
+      }
+    },
+    "otherDetails": {}
+  }
+}

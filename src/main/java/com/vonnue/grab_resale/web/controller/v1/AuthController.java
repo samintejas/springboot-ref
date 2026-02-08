@@ -15,6 +15,7 @@ import com.vonnue.grab_resale.service.AuthService;
 import com.vonnue.grab_resale.web.dto.ApiResponse;
 import com.vonnue.grab_resale.web.dto.auth.LoginRequest;
 import com.vonnue.grab_resale.web.dto.auth.RegisterRequest;
+import com.vonnue.grab_resale.web.dto.auth.SetPasswordRequest;
 import com.vonnue.grab_resale.web.dto.auth.UserResponse;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,6 +54,11 @@ public class AuthController {
             HttpServletResponse response) {
         authService.refreshAccessToken(refreshToken, response);
         return ApiResponse.withMessage("Token refreshed successfully");
+    }
+
+    @PostMapping("/set-password")
+    public ApiResponse<UserResponse> setPassword(@Valid @RequestBody SetPasswordRequest request) {
+        return ApiResponse.of(authService.setPassword(request));
     }
 
     @GetMapping("/me")

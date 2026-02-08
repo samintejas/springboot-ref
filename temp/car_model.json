@@ -1,18 +1,18 @@
 {
   "carDetails": {
     "carCondition": "newCar | preOwnedCar",
-    "make": "", // this should be dropdown in the ui -- stored in backend and retrienved with caching
-    "model": "", // this should be dropdown in the ui -- stored in backend and retrienved with caching
+    "make": "", // this should be dropdown in the ui -- stored in backend and retrienved with caching , this is going to be common for all users, ui will also load this and cach this on first load
+    "model": "", // this should be dropdown in the ui -- stored in backend and retrienved with caching, this is going to be common for all users, ui will also load this and cach this on first load
     "yearOfManufacturing": "date",
     "plateNumber": "string",
     "mileage": "number",
-    "carType": "enum", // this should be dropdown in the ui -- stored in backend and retrienved with caching
+    "carType": "enum", // this should be dropdown in the ui -- stored in backend and retrienved with caching, this is going to be common for all users, ui will also load this and cach this on first load
     "color": "string",
     "technicalSpecification": {
       "engineNumber": "string",
       "chassisNumber": "string",
-      "fuelType": "enum", // this should be dropdown in the ui -- stored in backend and retrienved with caching
-      "transmission": "enum", // this should be dropdown in the ui -- stored in backend and retrienved with caching
+      "fuelType": "enum", // this should be dropdown in the ui -- stored in backend and retrienved with caching, this is going to be common for all users, ui will also load this and cach this on first load
+      "transmission": "enum", // this should be dropdown in the ui -- stored in backend and retrienved with caching, this is going to be common for all users, ui will also load this and cach this on first load
       "engineCapacity": "number",
       "horsePower": "number"
     },

@@ -2,6 +2,7 @@ package com.vonnue.grab_resale.service;
 
 import com.vonnue.grab_resale.web.dto.auth.LoginRequest;
 import com.vonnue.grab_resale.web.dto.auth.RegisterRequest;
+import com.vonnue.grab_resale.web.dto.auth.SetPasswordRequest;
 import com.vonnue.grab_resale.web.dto.auth.UserResponse;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,4 +18,6 @@ public interface AuthService {
     void refreshAccessToken(String refreshToken, HttpServletResponse response);
 
     UserResponse getCurrentUser(String email);
+
+    UserResponse setPassword(SetPasswordRequest request);
 }

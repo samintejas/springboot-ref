@@ -2,6 +2,7 @@ package com.vonnue.grab_resale.service.impl;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.vonnue.grab_resale.common.constants.Role;
 import com.vonnue.grab_resale.persistence.entity.User;
@@ -13,6 +14,7 @@ import com.vonnue.grab_resale.service.CookieService;
 import com.vonnue.grab_resale.service.JwtService;
 import com.vonnue.grab_resale.web.dto.auth.LoginRequest;
 import com.vonnue.grab_resale.web.dto.auth.RegisterRequest;
+import com.vonnue.grab_resale.web.dto.auth.SetPasswordRequest;
 import com.vonnue.grab_resale.web.dto.auth.UserResponse;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -48,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserResponse login(LoginRequest request, HttpServletResponse response) {
         User user = userRepository.findByEmail(request.email())
-                .filter(u -> passwordEncoder.matches(request.password(), u.getPassword()))
+                .filter(u -> u.getPassword() != null && passwordEncoder.matches(request.password(), u.getPassword()))
                 .orElseThrow(() -> new BadRequestException("Invalid email or password"));
 
         setAuthCookies(user, response);
@@ -78,6 +80,24 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse getCurrentUser(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", email));
+        return UserResponse.from(user);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse setPassword(SetPasswordRequest request) {
+        User user = userRepository.findByInviteToken(request.token())
+                .orElseThrow(() -> new BadRequestException("Invalid invite token"));
+
+        if (!user.isInviteTokenValid()) {
+            throw new BadRequestException("Invite token has expired");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setInviteToken(null);
+        user.setInviteTokenExpiry(null);
+        user = userRepository.save(user);
+
         return UserResponse.from(user);
     }
 

@@ -1,0 +1,18 @@
+meta {
+  name: inviteAdmin
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/admin/users/invite
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "",
+    "name": ""
+  }
+}

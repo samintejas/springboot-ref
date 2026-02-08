@@ -1,0 +1,15 @@
+meta {
+  name: getListing
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/admin/listings/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
