@@ -17,15 +17,16 @@ import lombok.Setter;
 @Entity
 @Table(name = "users")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Setter
     private String password;
 
+    @Setter
     @Column(nullable = false)
     private String name;
 
@@ -33,8 +34,10 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private Role role;
 
+    @Setter
     private String inviteToken;
 
+    @Setter
     private Instant inviteTokenExpiry;
 
     public User(String email, String password, String name, Role role) {

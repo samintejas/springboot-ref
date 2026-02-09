@@ -1,6 +1,7 @@
 package com.vonnue.grab_resale.persistence.entity;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -28,7 +29,7 @@ public abstract class BaseEntity {
 
     @Version
     @Column(nullable = false)
-    private Long version;
+    private long version;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -47,5 +48,18 @@ public abstract class BaseEntity {
     private String updatedBy;
 
     protected BaseEntity() {
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseEntity that = (BaseEntity) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -4,10 +4,11 @@ import java.util.Map;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record CreateCarListingRequest(
         @Valid @NotNull CarDetailsRequest carDetails,
         @Valid @NotNull SellerDetailsRequest sellerDetails,
-        Map<String, String> otherDetails
+        @Size(max = 50) Map<String, String> otherDetails
 ) {
 }

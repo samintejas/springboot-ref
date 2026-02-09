@@ -9,12 +9,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "car_models")
+@Table(name = "car_models", uniqueConstraints = @UniqueConstraint(columnNames = {"slug", "make_id"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CarModel extends BaseEntity {

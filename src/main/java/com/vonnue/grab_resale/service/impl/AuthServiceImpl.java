@@ -1,23 +1,24 @@
 package com.vonnue.grab_resale.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.vonnue.grab_resale.common.constants.Role;
-import com.vonnue.grab_resale.persistence.entity.User;
 import com.vonnue.grab_resale.exception.BadRequestException;
 import com.vonnue.grab_resale.exception.ResourceNotFoundException;
+import com.vonnue.grab_resale.persistence.entity.User;
 import com.vonnue.grab_resale.persistence.repository.UserRepository;
 import com.vonnue.grab_resale.service.AuthService;
-import com.vonnue.grab_resale.service.CookieService;
 import com.vonnue.grab_resale.service.JwtService;
+import com.vonnue.grab_resale.web.dto.auth.AuthResult;
 import com.vonnue.grab_resale.web.dto.auth.LoginRequest;
 import com.vonnue.grab_resale.web.dto.auth.RegisterRequest;
 import com.vonnue.grab_resale.web.dto.auth.SetPasswordRequest;
 import com.vonnue.grab_resale.web.dto.auth.UserResponse;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,12 +28,14 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final CookieService cookieService;
+
+    private final String dummyPasswordHash = "$2a$10$abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV";
 
     @Override
-    public UserResponse register(RegisterRequest request, HttpServletResponse response) {
+    @Transactional
+    public AuthResult register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new BadRequestException("Email is already registered");
+            throw new BadRequestException("Registration failed");
         }
 
         User user = new User(
@@ -43,28 +46,38 @@ public class AuthServiceImpl implements AuthService {
         );
         user = userRepository.save(user);
 
-        setAuthCookies(user, response);
-        return UserResponse.from(user);
+        return buildAuthResult(user);
     }
 
     @Override
-    public UserResponse login(LoginRequest request, HttpServletResponse response) {
-        User user = userRepository.findByEmail(request.email())
-                .filter(u -> u.getPassword() != null && passwordEncoder.matches(request.password(), u.getPassword()))
-                .orElseThrow(() -> new BadRequestException("Invalid email or password"));
+    @Transactional(readOnly = true)
+    public AuthResult login(LoginRequest request) {
+        Optional<User> userOpt = userRepository.findByEmail(request.email());
 
-        setAuthCookies(user, response);
-        return UserResponse.from(user);
+        // Always run password comparison to prevent timing oracle
+        String storedHash = userOpt
+                .map(User::getPassword)
+                .orElse(dummyPasswordHash);
+
+        boolean passwordMatches = storedHash != null
+                && passwordEncoder.matches(request.password(), storedHash);
+
+        if (userOpt.isEmpty() || !passwordMatches) {
+            throw new BadRequestException("Invalid email or password");
+        }
+
+        return buildAuthResult(userOpt.get());
     }
 
     @Override
-    public void logout(HttpServletResponse response) {
-        cookieService.clearCookies(response);
-    }
-
-    @Override
-    public void refreshAccessToken(String refreshToken, HttpServletResponse response) {
+    @Transactional(readOnly = true)
+    public String refreshAccessToken(String refreshToken) {
         if (refreshToken == null || !jwtService.isTokenValid(refreshToken)) {
+            throw new BadRequestException("Invalid or expired refresh token");
+        }
+
+        String tokenType = jwtService.extractTokenType(refreshToken);
+        if (!JwtServiceImpl.TOKEN_TYPE_REFRESH.equals(tokenType)) {
             throw new BadRequestException("Invalid or expired refresh token");
         }
 
@@ -72,11 +85,11 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BadRequestException("Invalid or expired refresh token"));
 
-        String accessToken = jwtService.generateAccessToken(user);
-        cookieService.addAccessTokenCookie(response, accessToken);
+        return jwtService.generateAccessToken(user);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserResponse getCurrentUser(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", email));
@@ -101,10 +114,9 @@ public class AuthServiceImpl implements AuthService {
         return UserResponse.from(user);
     }
 
-    private void setAuthCookies(User user, HttpServletResponse response) {
+    private AuthResult buildAuthResult(User user) {
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
-        cookieService.addAccessTokenCookie(response, accessToken);
-        cookieService.addRefreshTokenCookie(response, refreshToken);
+        return new AuthResult(UserResponse.from(user), accessToken, refreshToken);
     }
 }

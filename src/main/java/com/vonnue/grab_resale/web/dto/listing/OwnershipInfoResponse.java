@@ -17,7 +17,7 @@ public record OwnershipInfoResponse(
                 info.getContactNumber(),
                 info.getEmail(),
                 info.getAddress(),
-                info.getIsSeller()
+                info.getSeller()
         );
     }
 }

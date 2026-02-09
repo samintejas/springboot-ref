@@ -139,13 +139,13 @@ class EmbeddableComponentsTest {
             info.setContactNumber("98765432");
             info.setEmail("jane@example.com");
             info.setAddress("456 Oak Ave");
-            info.setIsSeller(true);
+            info.setSeller(true);
 
             assertThat(info.getRegisteredOwner()).isEqualTo("Jane Doe");
             assertThat(info.getContactNumber()).isEqualTo("98765432");
             assertThat(info.getEmail()).isEqualTo("jane@example.com");
             assertThat(info.getAddress()).isEqualTo("456 Oak Ave");
-            assertThat(info.getIsSeller()).isTrue();
+            assertThat(info.getSeller()).isTrue();
         }
     }
 

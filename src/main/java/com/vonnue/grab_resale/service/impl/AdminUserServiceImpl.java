@@ -26,6 +26,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     @Transactional
     public InviteAdminResponse inviteAdmin(InviteAdminRequest request) {
+
         if (userRepository.existsByEmail(request.email())) {
             throw new BadRequestException("Email is already registered");
         }

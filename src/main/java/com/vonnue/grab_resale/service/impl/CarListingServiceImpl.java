@@ -3,6 +3,7 @@ package com.vonnue.grab_resale.service.impl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.vonnue.grab_resale.exception.BadRequestException;
 import com.vonnue.grab_resale.exception.ResourceNotFoundException;
 import com.vonnue.grab_resale.persistence.embeddable.FileAttachment;
 import com.vonnue.grab_resale.persistence.embeddable.OwnershipInfo;
@@ -17,6 +19,7 @@ import com.vonnue.grab_resale.persistence.embeddable.PriceCoeDetails;
 import com.vonnue.grab_resale.persistence.embeddable.RegistrationOwnership;
 import com.vonnue.grab_resale.persistence.embeddable.SellerInfo;
 import com.vonnue.grab_resale.persistence.embeddable.TechnicalSpecification;
+import com.vonnue.grab_resale.persistence.entity.BaseEntity;
 import com.vonnue.grab_resale.persistence.entity.CarImage;
 import com.vonnue.grab_resale.persistence.entity.CarListing;
 import com.vonnue.grab_resale.persistence.entity.CarMake;
@@ -71,6 +74,10 @@ public class CarListingServiceImpl implements CarListingService {
         CarModel model = carModelRepository.findById(carDetails.modelId())
                 .orElseThrow(() -> new ResourceNotFoundException("CarModel", carDetails.modelId()));
 
+        if (!model.getMake().getId().equals(make.getId())) {
+            throw new BadRequestException("Model does not belong to the specified make");
+        }
+
         CarListing listing = new CarListing();
         listing.setUser(user);
         listing.setMake(make);
@@ -114,7 +121,7 @@ public class CarListingServiceImpl implements CarListingService {
     @Override
     @Transactional(readOnly = true)
     public CarListingResponse getListing(Long id) {
-        CarListing listing = carListingRepository.findById(id)
+        CarListing listing = carListingRepository.findWithMakeAndModelById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("CarListing", id));
 
         List<CarImage> images = carImageRepository.findByListingId(id);
@@ -126,12 +133,22 @@ public class CarListingServiceImpl implements CarListingService {
     @Override
     @Transactional(readOnly = true)
     public PageResponse<CarListingSummaryResponse> getListings(Pageable pageable) {
-        Page<CarListingSummaryResponse> page = carListingRepository.findAll(pageable)
-                .map(listing -> {
-                    List<CarImage> images = carImageRepository.findByListingId(listing.getId());
-                    String primaryImageUrl = images.isEmpty() ? null : images.getFirst().getImageUrl();
-                    return CarListingSummaryResponse.from(listing, primaryImageUrl);
-                });
+        Page<CarListing> listings = carListingRepository.findAllBy(pageable);
+
+        List<Long> listingIds = listings.getContent().stream()
+                .map(BaseEntity::getId)
+                .toList();
+
+        Map<Long, List<CarImage>> imagesByListingId = listingIds.isEmpty()
+                ? Collections.emptyMap()
+                : carImageRepository.findByListingIdIn(listingIds).stream()
+                        .collect(Collectors.groupingBy(img -> img.getListing().getId()));
+
+        Page<CarListingSummaryResponse> page = listings.map(listing -> {
+            List<CarImage> images = imagesByListingId.getOrDefault(listing.getId(), Collections.emptyList());
+            String primaryImageUrl = images.isEmpty() ? null : images.getFirst().getImageUrl();
+            return CarListingSummaryResponse.from(listing, primaryImageUrl);
+        });
 
         return PageResponse.of(page);
     }
@@ -212,7 +229,7 @@ public class CarListingServiceImpl implements CarListingService {
         info.setContactNumber(req.contactNumber());
         info.setEmail(req.email());
         info.setAddress(req.address());
-        info.setIsSeller(req.isSeller());
+        info.setSeller(req.isSeller());
         return info;
     }
 
@@ -243,6 +260,10 @@ public class CarListingServiceImpl implements CarListingService {
         if (req.modelId() != null) {
             CarModel model = carModelRepository.findById(req.modelId())
                     .orElseThrow(() -> new ResourceNotFoundException("CarModel", req.modelId()));
+            CarMake effectiveMake = req.makeId() != null ? listing.getMake() : listing.getMake();
+            if (!model.getMake().getId().equals(effectiveMake.getId())) {
+                throw new BadRequestException("Model does not belong to the specified make");
+            }
             listing.setModel(model);
         }
         if (req.yearOfManufacturing() != null) listing.setYearOfManufacturing(req.yearOfManufacturing());
@@ -303,7 +324,7 @@ public class CarListingServiceImpl implements CarListingService {
             if (req.ownerContactNumber() != null) ownership.setContactNumber(req.ownerContactNumber());
             if (req.ownerEmail() != null) ownership.setEmail(req.ownerEmail());
             if (req.ownerAddress() != null) ownership.setAddress(req.ownerAddress());
-            if (req.ownerIsSeller() != null) ownership.setIsSeller(req.ownerIsSeller());
+            if (req.ownerIsSeller() != null) ownership.setSeller(req.ownerIsSeller());
             listing.setOwnershipInfo(ownership);
         }
 

@@ -33,5 +33,5 @@ public class CarImage extends BaseEntity {
     private Long size;
 
     @Column(nullable = false)
-    private Boolean numberPlateImage;
+    private boolean numberPlateImage;
 }

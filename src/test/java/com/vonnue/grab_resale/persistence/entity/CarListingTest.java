@@ -169,7 +169,7 @@ class CarListingTest {
             ownership.setContactNumber("98765432");
             ownership.setEmail("jane@example.com");
             ownership.setAddress("456 Oak Ave");
-            ownership.setIsSeller(true);
+            ownership.setSeller(true);
             listing.setOwnershipInfo(ownership);
 
             em.persistAndFlush(listing);
@@ -178,7 +178,7 @@ class CarListingTest {
             CarListing found = em.find(CarListing.class, listing.getId());
             assertThat(found.getOwnershipInfo()).isNotNull();
             assertThat(found.getOwnershipInfo().getRegisteredOwner()).isEqualTo("Jane Doe");
-            assertThat(found.getOwnershipInfo().getIsSeller()).isTrue();
+            assertThat(found.getOwnershipInfo().getSeller()).isTrue();
         }
 
         @Test

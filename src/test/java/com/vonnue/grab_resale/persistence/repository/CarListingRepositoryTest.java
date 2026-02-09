@@ -15,6 +15,9 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.vonnue.grab_resale.config.JpaConfig;
@@ -81,43 +84,27 @@ class CarListingRepositoryTest {
     class CarListingQueryTests {
 
         @Test
-        void shouldFindByUserId() {
-            CarListing listing = createListing(CarCondition.PRE_OWNED_CAR, toyota, camry);
+        void shouldFindAllWithPagination() {
+            em.persistAndFlush(createListing(CarCondition.NEW_CAR, toyota, camry));
+            em.persistAndFlush(createListing(CarCondition.PRE_OWNED_CAR, honda, civic));
+            em.clear();
+
+            Page<CarListing> page = carListingRepository.findAllBy(
+                    PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt")));
+            assertThat(page.getContent()).hasSize(2);
+            assertThat(page.getContent().getFirst().getMake()).isNotNull();
+            assertThat(page.getContent().getFirst().getModel()).isNotNull();
+        }
+
+        @Test
+        void shouldFindWithMakeAndModelById() {
+            CarListing listing = createListing(CarCondition.NEW_CAR, toyota, camry);
             em.persistAndFlush(listing);
             em.clear();
 
-            List<CarListing> found = carListingRepository.findByUserId(user.getId());
-            assertThat(found).hasSize(1);
-        }
-
-        @Test
-        void shouldFindByCarCondition() {
-            em.persistAndFlush(createListing(CarCondition.NEW_CAR, toyota, camry));
-            em.persistAndFlush(createListing(CarCondition.PRE_OWNED_CAR, honda, civic));
-            em.clear();
-
-            List<CarListing> newCars = carListingRepository.findByCarCondition(CarCondition.NEW_CAR);
-            assertThat(newCars).hasSize(1);
-        }
-
-        @Test
-        void shouldFindByMakeId() {
-            em.persistAndFlush(createListing(CarCondition.NEW_CAR, toyota, camry));
-            em.persistAndFlush(createListing(CarCondition.PRE_OWNED_CAR, honda, civic));
-            em.clear();
-
-            List<CarListing> toyotaListings = carListingRepository.findByMakeId(toyota.getId());
-            assertThat(toyotaListings).hasSize(1);
-        }
-
-        @Test
-        void shouldFindByModelId() {
-            em.persistAndFlush(createListing(CarCondition.NEW_CAR, toyota, camry));
-            em.persistAndFlush(createListing(CarCondition.PRE_OWNED_CAR, honda, civic));
-            em.clear();
-
-            List<CarListing> camryListings = carListingRepository.findByModelId(camry.getId());
-            assertThat(camryListings).hasSize(1);
+            CarListing found = carListingRepository.findWithMakeAndModelById(listing.getId()).orElseThrow();
+            assertThat(found.getMake().getName()).isEqualTo("Toyota");
+            assertThat(found.getModel().getName()).isEqualTo("Camry");
         }
     }
 
@@ -143,7 +130,7 @@ class CarListingRepositoryTest {
             assertThat(found).isNotNull();
             assertThat(found.getImageUrl()).isEqualTo("https://example.com/img1.jpg");
             assertThat(found.getListing().getId()).isEqualTo(listing.getId());
-            assertThat(found.getNumberPlateImage()).isFalse();
+            assertThat(found.isNumberPlateImage()).isFalse();
         }
 
         @Test
@@ -171,6 +158,36 @@ class CarListingRepositoryTest {
             em.clear();
 
             List<CarImage> images = carImageRepository.findByListingId(listing.getId());
+            assertThat(images).hasSize(2);
+        }
+
+        @Test
+        void shouldFindByListingIdIn() {
+            CarListing listing1 = createListing(CarCondition.PRE_OWNED_CAR, toyota, camry);
+            em.persistAndFlush(listing1);
+            CarListing listing2 = createListing(CarCondition.NEW_CAR, honda, civic);
+            listing2.setPlateNumber("SGY5678B");
+            em.persistAndFlush(listing2);
+
+            CarImage img1 = new CarImage();
+            img1.setListing(listing1);
+            img1.setImageUrl("https://example.com/img1.jpg");
+            img1.setFileName("img1.jpg");
+            img1.setMimeType("image/jpeg");
+            img1.setNumberPlateImage(false);
+            em.persistAndFlush(img1);
+
+            CarImage img2 = new CarImage();
+            img2.setListing(listing2);
+            img2.setImageUrl("https://example.com/img2.jpg");
+            img2.setFileName("img2.jpg");
+            img2.setMimeType("image/jpeg");
+            img2.setNumberPlateImage(false);
+            em.persistAndFlush(img2);
+            em.clear();
+
+            List<CarImage> images = carImageRepository.findByListingIdIn(
+                    List.of(listing1.getId(), listing2.getId()));
             assertThat(images).hasSize(2);
         }
     }

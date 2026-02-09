@@ -14,5 +14,7 @@ public interface JwtService {
 
     String extractName(String token);
 
+    String extractTokenType(String token);
+
     boolean isTokenValid(String token);
 }

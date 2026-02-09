@@ -13,9 +13,10 @@ import com.vonnue.grab_resale.common.constants.Transmission;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 
 public record UpdateCarListingRequest(
-        // Car details
+
         CarCondition carCondition,
         Long makeId,
         Long modelId,
@@ -24,25 +25,19 @@ public record UpdateCarListingRequest(
         @Positive Integer mileage,
         CarType carType,
         String color,
-
-        // Technical specification
         String engineNumber,
         String chassisNumber,
         FuelType fuelType,
         Transmission transmission,
         @Positive Integer engineCapacity,
         @Positive Integer horsePower,
-
-        // Registration & ownership
         String regOwnerName,
         LocalDate regRegistrationDate,
-        Integer regNumberOfTransfers,
+        @PositiveOrZero Integer regNumberOfTransfers,
         String regContactNumber,
         String regEmailAddress,
         String regAddress,
         @Valid FileAttachmentRequest regLogCard,
-
-        // Price & COE details
         @PositiveOrZero BigDecimal askingPrice,
         LocalDate coeRenewal,
         @PositiveOrZero BigDecimal coeAmount,
@@ -51,26 +46,18 @@ public record UpdateCarListingRequest(
         @PositiveOrZero BigDecimal depreciation,
         @PositiveOrZero BigDecimal roadTax,
         @PositiveOrZero BigDecimal omv,
-
-        // Seller details
         SellerType sellerType,
-
-        // Ownership info
         String ownerRegisteredOwner,
         String ownerContactNumber,
         String ownerEmail,
         String ownerAddress,
         Boolean ownerIsSeller,
-
-        // Seller info
         String sellerName,
         String sellerContactNumber,
         String sellerWhatsAppNumber,
         String sellerCompanyAddress,
         String sellerEmail,
         @Valid FileAttachmentRequest sellerLetterOfAuthorization,
-
-        // Other details
-        Map<String, String> otherDetails
+        @Size(max = 50) Map<String, String> otherDetails
 ) {
 }

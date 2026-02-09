@@ -18,7 +18,7 @@ public record CarImageResponse(
                 image.getFileName(),
                 image.getMimeType(),
                 image.getSize(),
-                image.getNumberPlateImage()
+                image.isNumberPlateImage()
         );
     }
 }

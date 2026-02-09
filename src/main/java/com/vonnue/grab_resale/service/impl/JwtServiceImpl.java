@@ -20,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtServiceImpl implements JwtService {
 
+    public static final String TOKEN_TYPE_ACCESS = "access";
+    public static final String TOKEN_TYPE_REFRESH = "refresh";
+
     private final JwtProperties jwtProperties;
     private final SecretKey signingKey;
 
@@ -30,12 +33,12 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateAccessToken(User user) {
-        return buildToken(user, jwtProperties.accessTokenExpiration().toMillis());
+        return buildToken(user, jwtProperties.accessTokenExpiration().toMillis(), TOKEN_TYPE_ACCESS);
     }
 
     @Override
     public String generateRefreshToken(User user) {
-        return buildToken(user, jwtProperties.refreshTokenExpiration().toMillis());
+        return buildToken(user, jwtProperties.refreshTokenExpiration().toMillis(), TOKEN_TYPE_REFRESH);
     }
 
     @Override
@@ -54,6 +57,11 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
+    public String extractTokenType(String token) {
+        return extractClaims(token).get("type", String.class);
+    }
+
+    @Override
     public boolean isTokenValid(String token) {
         try {
             Claims claims = extractClaims(token);
@@ -64,12 +72,13 @@ public class JwtServiceImpl implements JwtService {
         }
     }
 
-    private String buildToken(User user, long expirationMs) {
+    private String buildToken(User user, long expirationMs, String tokenType) {
         Date now = new Date();
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("role", user.getRole().name())
                 .claim("name", user.getName())
+                .claim("type", tokenType)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + expirationMs))
                 .signWith(signingKey)

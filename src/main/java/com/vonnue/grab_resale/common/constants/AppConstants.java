@@ -9,4 +9,6 @@ public final class AppConstants {
     public static final int DEFAULT_PAGE_SIZE = 20;
     public static final int MAX_PAGE_SIZE = 100;
     public static final String DEFAULT_SORT_DIRECTION = "asc";
+    public static final String TRACE_ID_HEADER = "x-trace-id";
+    public static final String TRACE_ID_MDC_KEY = "x-trace-id";
 }

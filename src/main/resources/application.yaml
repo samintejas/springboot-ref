@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    active: dev
   mvc:
     format:
       date: iso
@@ -30,6 +28,11 @@ spring:
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         jdbc:
           time_zone: UTC
+
+  data:
+    web:
+      pageable:
+        max-page-size: 100
 
   jackson:
     default-property-inclusion: non-null

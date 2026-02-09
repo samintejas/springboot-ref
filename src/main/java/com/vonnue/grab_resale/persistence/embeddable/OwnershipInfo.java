@@ -1,5 +1,6 @@
 package com.vonnue.grab_resale.persistence.embeddable;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,5 +20,6 @@ public class OwnershipInfo {
 
     private String address;
 
-    private Boolean isSeller;
+    @Column(name = "is_seller")
+    private Boolean seller;
 }
